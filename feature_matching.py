@@ -1,4 +1,5 @@
 import cv2
+import time
 import numpy as np
 
 from data_reader import DataReader
@@ -22,7 +23,9 @@ def main():
 
     # Test with LISA dataset
     data.load_dataset("lisa")
+    tick = time.time()
     accuracy = data.run_test(feature_matching)
+    print("The running time is ", time.time()-tick)
     print("The accuracy of running LISA dataset is: ", accuracy)
     print("Accurate Indices: ", data.accurate_indices)
     data.visualize_result()
@@ -30,6 +33,7 @@ def main():
     # Test with online dataset
     data.load_dataset("online")
     accuracy = data.run_test(feature_matching)
+    print("The running time is ", time.time()-tick)
     print("The accuracy of running online dataset is: ", accuracy)
     print("Accurate Indices: ", data.accurate_indices)
     data.visualize_result()
