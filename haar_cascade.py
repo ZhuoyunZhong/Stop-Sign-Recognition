@@ -20,11 +20,9 @@ def haar_cascade(img_gray):
     x, y, height, weight = [], [], [], []
     stop_data = cv2.CascadeClassifier('Stopsign_HAAR_19Stages.xml')
     results = stop_data.detectMultiScale(img_gray) 
-    if(len(results) == 0): 
-        found = [] 
-        return found
-    for i in results:
-        found.append(i)
+    if(len(results) != 0): 
+        for i in results:
+            found.append(i)
     return found
 
     
