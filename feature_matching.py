@@ -42,7 +42,7 @@ def feature_matching(gray_img):
     gray_img (2d numpy array): Input gray scale image
 
     Returns:
-    a list of found stop signs areas [(x, y, width, height) ...]
+    a list of found stop signs areas [(x, y, height, weight) ...]
     if nothing is found, return an empty list []
     '''
     found = []
