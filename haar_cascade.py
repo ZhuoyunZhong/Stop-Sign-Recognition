@@ -19,7 +19,7 @@ def haar_cascade(img_gray):
     found = []
     x, y, height, weight = [], [], [], []
     stop_data = cv2.CascadeClassifier('cascade.xml')
-    results = stop_data.detectMultiScale(img_gray) 
+    results = stop_data.detectMultiScale(img_gray,minNeighbors = 12) 
     if(len(results) != 0): 
         for i in results:
             found.append(i)
