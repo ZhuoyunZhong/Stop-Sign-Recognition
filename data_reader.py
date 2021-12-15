@@ -144,4 +144,5 @@ class DataReader():
             cv2.imshow("Detection Result", display_image) 
             cv2.waitKey(0)
         else:
+            os.makedirs("result", exist_ok=True)
             cv2.imwrite("result/"+str(index)+".jpg", display_image)
