@@ -1,1 +1,4 @@
 *.pyc
+
+svm_training_dataset/true_set/
+svm_training_dataset/false_set/
