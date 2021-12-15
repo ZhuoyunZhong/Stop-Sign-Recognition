@@ -4,3 +4,5 @@ result/
 svm_training_dataset/true_set/
 svm_training_dataset/false_set/
 
+Haar_trainner/negative_images/
+Haar_trainner/positive_images/
