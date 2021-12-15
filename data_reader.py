@@ -124,7 +124,7 @@ class DataReader():
         return accuracy
 
     
-    def visualize_result(self, index=None):
+    def visualize_result(self, index=None, write=False):
         # Visualize the first accurate stop sign if not specified
         if index == None:
             if len(self.accurate_stop_sign_indices) > 0:
@@ -140,5 +140,9 @@ class DataReader():
                                          (x + height, y + width),  
                           (0, 255, 0), 5)
         # Display
-        cv2.imshow("Detection Result", display_image) 
-        cv2.waitKey(0)
+        if not write:
+            cv2.imshow("Detection Result", display_image) 
+            cv2.waitKey(0)
+        else:
+            os.makedirs("result", exist_ok=True)
+            cv2.imwrite("result/"+str(index)+".jpg", display_image)

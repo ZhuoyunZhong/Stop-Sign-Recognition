@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import time
 
+import joblib
 from data_reader import DataReader
+from svm_trainer import extract_features
 
 
 def pre_processing(img):
@@ -12,21 +14,17 @@ def pre_processing(img):
     hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     # Red color range to find the traffic sign
-    #low_b_range = np.array([90, 100, 70])
-    #up_b_range = np.array([130, 255, 255])
-    low_r_range1 = np.array([0, 50, 30])
+    low_r_range1 = np.array([0, 70, 30])
     up_r_range1 = np.array([10, 255, 255])
-    low_r_range2 = np.array([160, 50, 30])
+    low_r_range2 = np.array([160, 70, 30])
     up_r_range2 = np.array([180, 255, 255])
     # Find the area in range
-    #b_in_range = cv2.inRange(hsv_img, low_b_range, up_b_range)
     r_in_range1 = cv2.inRange(hsv_img, low_r_range1, up_r_range1)
     r_in_range2 = cv2.inRange(hsv_img, low_r_range2, up_r_range2)
     r_in_range = cv2.bitwise_or(r_in_range1, r_in_range2)
 
     # Binary morphological operation
-    #b_mask = cv2.morphologyEx(b_in_range, cv2.MORPH_OPEN, np.ones((3,3),np.uint8))
-    r_mask = cv2.morphologyEx(r_in_range, cv2.MORPH_OPEN, np.ones((7,7),np.uint8))
+    r_mask = cv2.morphologyEx(r_in_range, cv2.MORPH_CLOSE, np.ones((3,3),np.uint8))
 
     return r_mask
     
@@ -49,21 +47,34 @@ def extract_area(img, binary_img):
             continue
         # ratio verification
         ratio = rect[2] / rect[3]
-        if ratio > 5 or ratio < 0.2:
+        if ratio > 3 or ratio < 0.333:
             continue
 
         # store image and coordinates (x, y, height, width)
-        sliced_img = img[rect[1]:rect[1]+rect[3], rect[0]:rect[0]+rect[2]]
+        coord = list(rect)
+        coord[0] = coord[0]-10 if coord[0]-10>0 else 0
+        coord[1] = coord[1]-10 if coord[1]-10>0 else 0
+        coord[2] += 20
+        coord[3] += 20 
+        sliced_img = img[coord[1]:coord[1]+coord[3], coord[0]:coord[0]+coord[2]]
         sliced_img = cv2.resize(sliced_img, (64, 64), cv2.INTER_AREA)
         images.append(sliced_img)
-        coords.append(rect)
+        coords.append(coord)
 
     return images, coords
 
 
-def svm_classify(img):
-    result = []
-    return True
+def svm_classify(svm, scaler, img):
+    # Feature extraction
+    features = extract_features(img)
+    test_features = scaler.transform(np.array(features).reshape(1, -1))
+
+    # Predict using your SVM
+    prediction = svm.predict(test_features)
+    if prediction == 1:
+        return True
+    else:
+        return False
 
 
 def hsv_svm(img):
@@ -80,22 +91,18 @@ def hsv_svm(img):
     images, coords = extract_area(img, binary_img)
     # Check each possible region
     found = []
+    svm, scaler = joblib.load("svm_model.m")
     for i, image in enumerate(images):
-        result = svm_classify(image)
+        result = svm_classify(svm, scaler, image)
         if result:
             found.append(coords[i])
-            cv2.rectangle(img, (coords[i][0], coords[i][1]),
-                               (coords[i][0]+coords[i][2], coords[i][1]+coords[i][3]), 
-                               (0, 0, 255), 5)
-
-    cv2.imwrite("test/contour.jpg", img)
-
+    
     return found
 
 
 def main():
     data = DataReader()
-
+    
     # Test with LISA dataset
     data.load_dataset("lisa")
     tick = time.time()
@@ -103,20 +110,18 @@ def main():
     print("The running time is ", time.time()-tick)
     print("The accuracy of running LISA dataset is: ", accuracy)
     print("Accurate Indices: ", data.accurate_indices)
-    data.visualize_result()
-
+    #for i in range(100):
+    #    data.visualize_result(i, write=True)
+    
     # Test with online dataset
     data.load_dataset("online")
+    tick = time.time()
     accuracy = data.run_test(hsv_svm, color=True)
     print("The running time is ", time.time()-tick)
     print("The accuracy of running online dataset is: ", accuracy)
     print("Accurate Indices: ", data.accurate_indices)
-    data.visualize_result()
-
+    #for i in range(200):
+    #    data.visualize_result(i)
 
 if __name__ == "__main__":
-    #main()
-    image_name = "online_dataset/images/000.jpg"
-    img = cv2.imread(image_name)
-
-    print(hsv_svm(img))
+    main()
