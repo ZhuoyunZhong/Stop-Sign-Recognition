@@ -41,6 +41,7 @@ def main():
 
     # Test with online dataset
     data.load_dataset("online")
+    tick = time.time()
     accuracy = data.run_test(haar_cascade)
     print("The running time is ", time.time()-tick)
     print("The accuracy of running online dataset is: ", accuracy)
