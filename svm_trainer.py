@@ -62,12 +62,12 @@ def visualize_features():
 
     fig, axes = plt.subplots(len(images), 3, figsize=(18, 3*len(images)))
     for idx, image in enumerate(images):
-        images = cv2.resize(image, (64, 64), cv2.INTER_AREA)
+        image = cv2.resize(image, (64, 64), cv2.INTER_AREA)
         # Convert to HSV and YUV space
-        gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-        hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         # Extract HSV features
-        h_features = color_hist(hsv[:, :, 0])
+        h_features = color_hist(hsv[:, :, 0], nbins=60, bins_range=(0, 180))
         # Extract YUV HOG features
         yuv_hog_features, yuv_hog_images = extract_hog(gray, vis=True)
         # Display
